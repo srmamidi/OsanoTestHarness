@@ -1,0 +1,35 @@
+# ACE Cash Express — LOWER-LEVEL ENVIRONMENTS Osano property (all LLE subdomains share it).
+# List every LLE host you want covered; each page is tested under every consent choice.
+
+name: ace-lle
+display_name: ACE Cash Express — Lower environments (LLE)
+environment: lle
+osano_property: lle
+
+first_party_domains: [acecashexpress.com]
+
+consent_model_expected: opt-in         # CONFIRM (see OSN-06 after the first run)
+google_consent_mode: advanced
+banner_expected_on_first_visit: true
+expected_categories_when_accepted: [ANALYTICS, MARKETING]
+
+osano:
+  # From the LLE osano.js URL. Must differ from production: OSN-03 catches LLE pages on the prod config.
+  expected_customer_id: REPLACE-ME
+  expected_config_id: REPLACE-ME
+  expected_mode: strict
+
+pages:
+  # Replace with your real LLE hosts (qa / uat / staging ...). Add as many as you need.
+  - id: qa-home
+    url: https://REPLACE-ME-qa.acecashexpress.com/
+    journey_checks:
+      - {id: has-apply-link, description: An apply link is visible, selector: "a[href*='apply']"}
+  - id: qa-apply-step-one
+    url: https://REPLACE-ME-qa-apply.acecashexpress.com/payday-lending/payday-loans/step/one
+    journey_checks:
+      - {id: form-renders, description: Step one form is visible, selector: "form"}
+
+crawl:
+  headless: true
+  polite_delay_ms: 1000

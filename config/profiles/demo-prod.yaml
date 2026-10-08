@@ -1,0 +1,36 @@
+# DEMO — the built-in local fake site, "production" property. Used by `python -m osano_harness demo`.
+# Every non-local request is answered by stubs (network.offline_demo); nothing leaves the machine.
+
+name: demo-prod
+display_name: DEMO Cash Express — Production (sample)
+environment: production
+osano_property: demo-production
+first_party_domains: [127.0.0.1, localhost]
+consent_model_expected: opt-in
+google_consent_mode: advanced
+expected_categories_when_accepted: [ANALYTICS, MARKETING]
+
+osano:
+  expected_customer_id: DemoCustomer
+  expected_config_id: demo-prod-config
+  expected_mode: strict
+
+pages:
+  - id: home
+    url: http://127.0.0.1:8770/prod/
+    journey_checks:
+      - {id: has-apply-link, description: Apply link is visible, selector: "#apply-link"}
+  - id: apply-step-one
+    url: http://127.0.0.1:8770/prod/payday-lending/payday-loans/step/one
+    journey_checks:
+      - {id: form-renders, description: Step one form is visible, selector: "form#apply-step-one"}
+      - {id: address-autocomplete, description: Address autocomplete (Google Maps) loaded,
+         js: "window.google && window.google.maps"}
+
+crawl:
+  settle_ms: 1600
+  network_idle_ms: 2500
+  polite_delay_ms: 0
+
+network:
+  offline_demo: true

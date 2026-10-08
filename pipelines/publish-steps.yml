@@ -1,0 +1,37 @@
+# Publish run data and HTML reports, even when the gate failed (that is when people need them most).
+parameters:
+  - name: profile
+    type: string
+  - name: suffix
+    type: string
+    default: ''
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: Publish run data
+    condition: always()
+    inputs:
+      targetPath: runs/${{ parameters.profile }}
+      artifact: osano-runs-${{ parameters.profile }}${{ parameters.suffix }}
+  - task: PublishPipelineArtifact@1
+    displayName: Publish HTML reports
+    condition: always()
+    inputs:
+      targetPath: docs/reports
+      artifact: osano-reports-${{ parameters.profile }}${{ parameters.suffix }}
+  # Optional copy to Azure Storage for Ecom Control Center. Inserted at compile time ONLY when enabled:
+  # a step referencing an empty service connection can block the whole run at queue time.
+  - ${{ if eq(variables['publishToStorage'], 'true') }}:
+      - task: AzureCLI@2
+        displayName: Copy reports to Azure Storage
+        condition: always()
+        inputs:
+          azureSubscription: ${{ variables.storageServiceConnection }}
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+            az storage blob upload-batch --auth-mode login --account-name $env:STORAGE_ACCOUNT `
+              --destination osano-reports --source docs/reports --overwrite true
+            if ($LASTEXITCODE -ne 0) { throw 'upload failed' }
+        env:
+          STORAGE_ACCOUNT: $(storageAccount)

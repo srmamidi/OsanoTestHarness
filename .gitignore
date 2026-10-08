@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# Real-site run data can hold URLs and cookie values; keep it out of git. Demo runs are kept.
+runs/*
+!runs/demo-*/
+docs/reports/*
+!docs/reports/demo-*/
+!docs/reports/index.html
+.env
+.env.local

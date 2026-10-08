@@ -1,0 +1,30 @@
+{
+  "property": "demo-production",
+  "mode": "permissive",
+  "captured_at": "2026-10-07T09:00:00Z",
+  "source": "SAMPLE export (fabricated for the demo) - before",
+  "items": [
+    {"type": "script", "section": "rules", "match": "cmp.osano.com", "category": "ESSENTIAL"},
+    {"type": "script", "section": "rules", "match": "googletagmanager.com", "category": "ESSENTIAL"},
+    {"type": "script", "section": "rules", "match": "bat.bing.com", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "clarity.ms", "category": "ANALYTICS"},
+    {"type": "script", "section": "rules", "match": "maps.googleapis.com", "category": "ESSENTIAL"},
+    {"type": "script", "section": "rules", "match": "doubleclick.net", "category": "ANALYTICS"},
+    {"type": "script", "section": "rules", "match": "localhost-debug.js", "category": "ESSENTIAL"},
+    {"type": "script", "section": "discovered", "match": "connect.facebook.net", "category": null},
+    {"type": "script", "section": "discovered", "match": "static.hotjar.com", "category": null},
+    {"type": "script", "section": "discovered", "match": "cdn.heapanalytics.com", "category": null},
+    {"type": "script", "section": "ignored", "match": "google-analytics.com", "category": null},
+    {"type": "script", "section": "ignored", "match": "localhost-debug.js", "category": null},
+    {"type": "cookie", "section": "rules", "match": "osano_consentmanager*", "category": "ESSENTIAL"},
+    {"type": "cookie", "section": "rules", "match": "_ga", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "rules", "match": "_ga_*", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "rules", "match": "_uetsid", "category": "MARKETING"},
+    {"type": "cookie", "section": "rules", "match": "_clck", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "discovered", "match": "_fbp", "category": null},
+    {"type": "cookie", "section": "discovered", "match": "_hjSessionUser_*", "category": null},
+    {"type": "cookie", "section": "ignored", "match": "_gcl_au", "category": null},
+    {"type": "cookie", "section": "ignored", "match": "ASP.NET_SessionId", "category": null},
+    {"type": "iframe", "section": "discovered", "match": "youtube.com", "category": null}
+  ]
+}

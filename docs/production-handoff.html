@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Osano Test Harness — production handoff</title><style>
+:root{--bg:#0f1217;--panel:#171b22;--border:#2a313c;--text:#e6e9ee;--muted:#9aa4b2;--accent:#5aa9ff;--code-bg:#11151b;
+--good:#2fbf71;--good-bg:#12301f;--warn:#e0a32e;--warn-bg:#3a2c10;--danger:#ff6b6b;--danger-bg:#3d1717;--info:#6cb6ff;--info-bg:#132a40;
+--muted-bg:#232a33;--s1:#8a96a8;--s2:#5aa9ff;--s3:#2fbf71}
+:root[data-theme="light"]{--bg:#f6f7f9;--panel:#ffffff;--border:#d8dde5;--text:#1b2230;--muted:#5b6575;--accent:#0b63c5;--code-bg:#eef1f5;
+--good:#13753f;--good-bg:#dcf3e6;--warn:#8a5a00;--warn-bg:#fbefd5;--danger:#b42318;--danger-bg:#fde3e1;--info:#0b5cad;--info-bg:#dfeefc;
+--muted-bg:#eceff3;--s1:#9aa3b0;--s2:#0b63c5;--s3:#13753f}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+header h1{font-size:18px;margin:0 12px 0 0}.spacer{flex:1}
+.ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+button,select{background:var(--code-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font:inherit;cursor:pointer}
+button:hover{border-color:var(--accent)}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap;padding:10px 20px 0;border-bottom:1px solid var(--border);background:var(--panel)}
+.tab-btn{border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;background:transparent;color:var(--muted);padding:8px 14px}
+.tab-btn.active{background:var(--bg);color:var(--text);border-color:var(--border)}
+main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
+.tab-pane{display:none}.tab-pane.active{display:block}
+h2{font-size:17px;margin:22px 0 10px;border-bottom:1px solid var(--border);padding-bottom:6px}h3{font-size:15px;margin:18px 0 8px}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid transparent}
+.tag.good{color:var(--good);background:var(--good-bg)}.tag.warn{color:var(--warn);background:var(--warn-bg)}
+.tag.danger{color:var(--danger);background:var(--danger-bg)}.tag.info{color:var(--info);background:var(--info-bg)}
+.tag.muted{color:var(--muted);background:var(--muted-bg)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:10px 0}
+.card{background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--border);border-radius:8px;padding:10px 12px}
+.card.good{border-left-color:var(--good)}.card.warn{border-left-color:var(--warn)}.card.danger{border-left-color:var(--danger)}.card.info{border-left-color:var(--info)}
+.card .v{font-size:22px;font-weight:700}.card .l{color:var(--muted);font-size:12px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%}th,td{padding:7px 10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+th{background:var(--code-bg);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em;position:sticky;top:0}
+tr:last-child td{border-bottom:none}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:12.5px;word-break:break-all}
+.muted{color:var(--muted)}details summary{cursor:pointer;color:var(--accent)}ul.ev{margin:6px 0 0 0;padding-left:18px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:10px 0}
+.banner{border-radius:10px;padding:14px 18px;margin:10px 0;border:1px solid var(--border);background:var(--panel)}
+.banner.good{border-color:var(--good)}.banner.danger{border-color:var(--danger)}.banner.warn{border-color:var(--warn)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.cell{text-align:center;font-weight:600}
+svg.chart{width:100%;max-width:900px;height:auto}svg .cl{fill:var(--muted);font-size:12px}svg .cv{fill:var(--text);font-size:11px}
+.shot{max-width:100%;border:1px solid var(--border);border-radius:6px}
+.filter{margin:8px 0}
+td.f-good{background:var(--good-bg);color:var(--good);font-weight:700}
+td.f-bad{background:var(--danger-bg);color:var(--danger);font-weight:700}
+td.f-warn{background:var(--warn-bg);color:var(--warn);font-weight:700}
+td.f-info{background:var(--info-bg);color:var(--info);font-weight:700}
+td.f-muted{color:var(--muted)}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;border-radius:12px;padding:18px 22px;
+margin:6px 0 16px;border:2px solid var(--border);background:var(--panel)}
+.hero.good{border-color:var(--good);background:var(--good-bg)}.hero.danger{border-color:var(--danger);background:var(--danger-bg)}
+.hero.warn{border-color:var(--warn);background:var(--warn-bg)}
+.hero .big{font-size:30px;font-weight:800;line-height:1.1}.hero .big small{display:block;font-size:12px;font-weight:600;
+letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hero p{margin:4px 0}.hero.good .big{color:var(--good)}.hero.danger .big{color:var(--danger)}.hero.warn .big{color:var(--warn)}
+.lead{font-size:15px;margin:4px 0 14px}
+.chips span{margin:0 4px 4px 0;display:inline-block}
+@media (max-width:700px){header{padding:10px 16px}main{padding:14px 16px 50px}nav.tabs{padding:8px 16px 0}}
+pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;border:1px solid var(--border)}pre code{background:none}ol li,ul li{margin:6px 0}</style></head>
+<body>
+<header><h1>Osano Test Harness — production handoff</h1><span class="muted">for DevOps, Osano admins and Ecom Control Center developers</span> <span class="tag info">v1.1</span> <span class="tag good">Recommendation: pipeline</span><span class="spacer"></span>
+<div class="ctl" id="listen" aria-label="Listen"><span class="muted">Listen</span>
+<button id="playBtn" title="Read the current tab aloud">Play</button><button id="pauseBtn">Pause</button><button id="stopBtn">Stop</button>
+<select id="voiceSel" aria-label="Voice"></select>
+<select id="rateSel" aria-label="Speed"><option value="0.75">0.75x</option><option value="1" selected>1x</option><option value="1.25">1.25x</option><option value="1.5">1.5x</option><option value="2">2x</option></select>
+</div>
+<button id="themeBtn">Light mode</button></header>
+<nav class="tabs"><button class="tab-btn active" data-tab="summary">Summary</button><button class="tab-btn" data-tab="local">Run locally</button><button class="tab-btn" data-tab="pipeline">Azure DevOps pipeline</button><button class="tab-btn" data-tab="ecc">Ecom Control Center</button><button class="tab-btn" data-tab="risks">Open items &amp; limits</button><button class="tab-btn" data-tab="history">Version history</button></nav>
+<main><section class="tab-pane active" id="summary"><h2>What this is</h2><div class='panel'><p>The Osano Test Harness opens each website page in a real browser, once for every consent choice a visitor can make (no choice, accept, reject, each category on its own, and the GPC 'do not sell' signal). It records every tracker, cookie and embedded frame, and checks them against the choice. Run it before and after every Osano change. It produces three reports: before, after, and a one-page before-vs-after comparison with a HIGH / MEDIUM / LOW risk rating.</p></div><h2>Recommendation</h2><div class='banner good'><p><b>Run the harness as an Azure DevOps pipeline. Ecom Control Center starts that pipeline and shows the results.</b> Do not run the harness inside the Ecom Control Center web application.</p></div><div class="tbl-wrap"><table class=""><thead><tr><th>Option</th><th>Good for</th><th>Problems</th><th>Verdict</th></tr></thead><tbody><tr data-status=""><td><b>Local (a laptop)</b></td><td>Trying it out; investigating one problem</td><td>Depends on one person and one machine; no history; easy to forget</td><td class="f-warn">Use for investigation only</td></tr><tr data-status=""><td><b>Azure DevOps pipeline</b></td><td>Repeatable runs, a pause for the change, history of every run, nightly drift check, can block a bad change, audit trail of who ran it</td><td>Needs a self-hosted Windows agent</td><td class="f-good">Recommended — the engine</td></tr><tr data-status=""><td><b>Inside Ecom Control Center</b></td><td>One place for the team to look</td><td>A browser run takes 2–10 minutes and hundreds of MB of memory — too long for a web request; Chromium under the IIS app-pool identity is fragile; widens what the web app can do on the network</td><td class="f-warn">Use as the front end only</td></tr></tbody></table></div><h2>How the pieces connect</h2>
+<svg class="chart" viewBox="0 0 900 250" role="img" aria-label="How the pieces connect">
+ <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+  <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+ <g font-size="13" fill="var(--text)">
+  <rect x="10" y="80" width="190" height="80" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="105" y="112" text-anchor="middle" font-weight="700">Ecom Control Center</text>
+  <text x="105" y="132" text-anchor="middle" fill="var(--muted)">Run button + results page</text>
+  <rect x="290" y="20" width="230" height="80" rx="10" fill="var(--panel)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="405" y="52" text-anchor="middle" font-weight="700">Azure DevOps pipeline</text>
+  <text x="405" y="72" text-anchor="middle" fill="var(--muted)">before → pause → after → compare</text>
+  <rect x="290" y="150" width="230" height="80" rx="10" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+  <text x="405" y="182" text-anchor="middle" font-weight="700">Azure Storage (reports)</text>
+  <text x="405" y="202" text-anchor="middle" fill="var(--muted)">HTML reports + summary JSON</text>
+  <rect x="610" y="20" width="280" height="80" rx="10" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+  <text x="750" y="52" text-anchor="middle" font-weight="700">Self-hosted Windows agent</text>
+  <text x="750" y="72" text-anchor="middle" fill="var(--muted)">Python + Chromium, inside the network</text>
+  <rect x="610" y="150" width="280" height="80" rx="10" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+  <text x="750" y="182" text-anchor="middle" font-weight="700">Websites (prod + LLE)</text>
+  <text x="750" y="202" text-anchor="middle" fill="var(--muted)">MVC apply flow, CMS marketing site</text>
+ </g>
+ <g stroke="var(--muted)" stroke-width="2" fill="none" marker-end="url(#a)">
+  <path d="M200,100 L288,62"/><path d="M520,60 L608,60"/><path d="M750,100 L750,148"/>
+  <path d="M405,100 L405,148"/><path d="M288,190 L202,140"/>
+ </g>
+ <g font-size="11" fill="var(--muted)">
+  <text x="150" y="62">1. start run (REST)</text><text x="535" y="50">2. runs on</text>
+  <text x="758" y="130">3. browses</text><text x="412" y="130">4. uploads</text><text x="150" y="215">5. reads + shows</text>
+ </g>
+</svg>
+<h2>Who does what</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Role</th><th>Responsibility</th></tr></thead><tbody><tr data-status=""><td>DevOps</td><td>Agent, pipeline, storage, keeping Chromium and Python current</td></tr><tr data-status=""><td>Osano administrator</td><td>Exports the Osano configuration before and after each change; approves the pause step</td></tr><tr data-status=""><td>Ecom Control Center developers</td><td>Results page and Run button (Ecom Control Center tab)</td></tr><tr data-status=""><td>Marketing / analytics owners</td><td>Know that harness runs send a small number of real analytics hits</td></tr></tbody></table></div></section><section class="tab-pane" id="local"><h2>Prerequisites</h2><ul><li>Windows 10/11 or Windows Server 2019+ with internet access to the sites being tested</li><li>Python 3.12 or 3.13 (<code>py -0p</code> lists installed versions)</li><li>About 600 MB of disk for the browser</li><li>Network access to the LLE hosts (VPN if off-site)</li></ul><h2>One-time setup</h2><ol><li>Copy or clone the folder, e.g. <code>C:\GitRepos-GraceAlone\OsanoTestHarness</code>.</li><li><code>.\scripts\Invoke-OsanoHarness.ps1 -Action Setup</code> — creates <code>.venv</code>, installs pinned packages and Chromium.</li><li><code>.\scripts\Invoke-OsanoHarness.ps1 -Action Test</code> — must show all tests passing. The tests use the built-in demo site, so nothing leaves the machine.</li><li><code>.\scripts\Invoke-OsanoHarness.ps1 -Action Demo</code> — produces sample reports in <code>docs\reports</code>. Open <code>docs\reports\index.html</code>.</li><li>Fill <code>config\profiles\ace-prod.yaml</code> and <code>ace-lle.yaml</code>: Osano customer id and config id (from the <code>osano.js</code> URL), real page URLs, LLE hosts. The tool refuses to run while any <code>REPLACE-ME</code> is left.</li></ol><h2>Every Osano change</h2><ol><li>Export the Osano configuration (Osano MCP / REST) and normalise it:<br><code>.venv\Scripts\python.exe -m osano_harness import-config --input raw.json --output config\osano_exports\prod-before.json</code></li><li><code>.\scripts\Invoke-OsanoHarness.ps1 -Action Run -Profile ace-prod -Label before -OsanoConfig config\osano_exports\prod-before.json</code></li><li>Make and publish the change in Osano. Wait about 5 minutes for Osano's CDN.</li><li>Export again, then run with <code>-Label after</code> and the new export.</li><li><code>.\scripts\Invoke-OsanoHarness.ps1 -Action Compare -Profile ace-prod</code> and open the compare report it prints.</li></ol><h2>Where things land</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Path</th><th>Contents</th></tr></thead><tbody><tr data-status=""><td><code>runs\&lt;profile&gt;\*.json</code></td><td>Raw data of each run (git-ignored for real sites)</td></tr><tr data-status=""><td><code>docs\reports\&lt;profile&gt;\*.html</code></td><td>Before / after / compare reports</td></tr><tr data-status=""><td><code>docs\reports\index.html</code> / <code>index.json</code></td><td>List of everything, for people / for tools</td></tr></tbody></table></div><h2>When something goes wrong</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Symptom</th><th>Cause and fix</th></tr></thead><tbody><tr data-status=""><td>Problems marked <b>NOT JUDGED</b></td><td>The banner buttons changed. Inspect the banner and set <code>osano.selectors</code> in the profile.</td></tr><tr data-status=""><td>Pages time out or show a challenge</td><td>Akamai bot protection. Set <code>crawl.headless: false</code> or allow-list the <code>OsanoTestHarness/1.0</code> user agent.</td></tr><tr data-status=""><td>'Wrong Osano configuration' everywhere</td><td>Expected config id in the profile is wrong, or the page really loads the other property's config.</td></tr><tr data-status=""><td>Looks stuck</td><td>It is not printing. Each page × choice takes 3–20 s; check that files appear under <code>runs\</code>.</td></tr></tbody></table></div></section><section class="tab-pane" id="pipeline"><h2>What the pipeline does</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Stage</th><th>What happens</th></tr></thead><tbody><tr data-status=""><td>1. Before</td><td>Sets up Python + Chromium, self-tests, probes every page × choice, publishes the BEFORE report</td></tr><tr data-status=""><td>2. Make the Osano change</td><td>Pipeline pauses (up to 3 days). The Osano admin makes and publishes the change, then presses <b>Resume</b></td></tr><tr data-status=""><td>3. After + compare</td><td>Probes again, compares, publishes the reports. <b>Fails the run</b> when the change introduced a high-risk problem (default gate <code>new-high</code>)</td></tr><tr data-status=""><td>Nightly</td><td>One run per night of the pipeline's default property, compared with that property's last nightly run (found by build tag). Catches drift: a tag added to the CMS, an Osano rule edited, a new vendor. For a nightly of the other property, copy the YAML with the other default and create a second pipeline.</td></tr></tbody></table></div><h2>Set it up (one time)</h2><ol><li><b>Agent.</b> Create agent pool <code>Osano-Harness-Win</code> and register a self-hosted Windows agent on a server <i>inside</i> the network (LLE hosts are internal; Microsoft-hosted agents may be blocked by Akamai). Install Python 3.13 for all users. 2 vCPU / 4 GB RAM is enough.</li><li><b>Repo.</b> Push this folder to an Azure Repos repository (e.g. <code>OsanoTestHarness</code>).</li><li><b>Pipeline.</b> Pipelines → New → Azure Repos Git → Existing YAML → <code>/azure-pipelines.yml</code>.</li><li><b>Permissions.</b> Pipeline settings → allow it to use the agent pool. Restrict who can run it and who can approve the pause step (Osano administrators).</li><li><b>Profiles.</b> Commit the filled <code>ace-prod.yaml</code> / <code>ace-lle.yaml</code>. They hold no secrets.</li><li><b>Optional storage.</b> For Ecom Control Center: create a storage account with container <code>osano-reports</code>, an Azure Resource Manager service connection with <i>Storage Blob Data Contributor</i>, and set pipeline variables <code>publishToStorage=true</code>, <code>storageServiceConnection</code>, <code>storageAccount</code>.</li></ol><h2>Running it</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Parameter</th><th>Meaning</th></tr></thead><tbody><tr data-status=""><td><code>profile</code></td><td><code>ace-prod</code> or <code>ace-lle</code> (one Osano property each)</td></tr><tr data-status=""><td><code>mode</code></td><td><code>before-after</code> (with the pause) or <code>single</code> (one run, no compare)</td></tr><tr data-status=""><td><code>osanoConfigBefore/After</code></td><td>Repo path to the normalised Osano export (optional; without it the Osano-configuration checks are skipped)</td></tr><tr data-status=""><td><code>failOn</code></td><td><code>new-high</code> (default): fail if the change made a high-risk check fail or made it impossible to judge. <code>high-risk</code>: fail if the after state is HIGH risk — a high-risk problem is open, or a high-risk check could not be judged. <code>never</code>: report only</td></tr></tbody></table></div><h2>Exit codes</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody><tr data-status=""><td>0</td><td>Done; gate passed</td></tr><tr data-status=""><td>2</td><td>Profile, Osano export or run file missing or not usable (message says which)</td></tr><tr data-status=""><td>3</td><td>Gate failed: open the compare report</td></tr><tr data-status=""><td>other</td><td>The tool crashed — see the log</td></tr></tbody></table></div><h2>Files</h2><div class="tbl-wrap"><table class=""><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody><tr data-status=""><td><code>azure-pipelines.yml</code></td><td>Stages, schedule, parameters</td></tr><tr data-status=""><td><code>pipelines/setup-steps.yml</code></td><td>Python, packages, Chromium, self-test</td></tr><tr data-status=""><td><code>pipelines/publish-steps.yml</code></td><td>Artifacts (always, even on failure) and optional storage copy</td></tr></tbody></table></div></section><section class="tab-pane" id="ecc"><h2>Yes — integrate as the front end</h2><p>Ecom Control Center gets two features. It does not run browsers itself.</p><h3>A. Results page (read-only)</h3><ol><li>The pipeline copies reports to blob container <code>osano-reports</code> (<code>&lt;profile&gt;/compare_*.json</code> summaries and <code>*.html</code> reports).</li><li>Ecom Control Center lists <code>*/compare_*.json</code> with the Azure Storage SDK (managed identity or service principal with <i>Storage Blob Data Reader</i>). Each summary has <code>risk</code>, <code>verdict</code> (IMPROVED / REGRESSED / MIXED / UNCHANGED / INCOMPLETE), <code>counts</code>, <code>compared_utc</code>, <code>before_finished_utc</code>, <code>after_finished_utc</code> and the scorecard numbers (a number can be <code>null</code> = not judged; show it as such, never as 0).</li><li>Show a table: Risk (red / amber / green fill), property, date, fixed / new / still open, link to the report.</li><li>Serve a report through a controller action that streams the blob with header <code>Content-Security-Policy: sandbox allow-scripts</code> — reports contain text taken from websites. It is escaped, but the sandbox keeps it from ever touching the Ecom Control Center session.</li></ol><h3>B. Run button</h3><ol><li>Ecom Control Center calls the Azure DevOps REST API: <code>POST https://dev.azure.com/{org}/{project}/_apis/pipelines/{pipelineId}/runs?api-version=7.1</code> with body <code>{"templateParameters": {"profile": "ace-lle", "mode": "before-after"}}</code>.</li><li>Authenticate with a service principal / managed identity added to the Azure DevOps organisation, with only <i>queue builds</i> on this one pipeline. If a PAT is unavoidable: scope <i>Build (read &amp; execute)</i>, stored in Key Vault, rotated.</li><li>Show the run link. Approving the pause step stays in Azure DevOps (it is audited there).</li><li>Only Osano administrators see the button (Ecom Control Center role check, server side).</li></ol><h3>Code sketch (C#, not compiled — adapt to the app's patterns)</h3><pre><code>// Results: list compare summaries
+var container = new BlobContainerClient(new Uri(storageUrl + &quot;/osano-reports&quot;), new DefaultAzureCredential());
+await foreach (var blob in container.GetBlobsAsync(prefix: profile + &quot;/&quot;))
+    if (blob.Name.Contains(&quot;/compare_&quot;) &amp;&amp; blob.Name.EndsWith(&quot;.json&quot;)) { /* download, deserialize, add to model */ }
+
+// Report viewer: stream HTML in a sandbox
+Response.Headers[&quot;Content-Security-Policy&quot;] = &quot;sandbox allow-scripts&quot;;
+return File(await container.GetBlobClient(path).OpenReadAsync(), &quot;text/html&quot;);   // path validated against the listing
+
+// Run button: queue the pipeline (server side, after a role check)
+var body = new { templateParameters = new { profile, mode = &quot;before-after&quot; } };
+await http.PostAsJsonAsync($&quot;https://dev.azure.com/{org}/{project}/_apis/pipelines/{id}/runs?api-version=7.1&quot;, body);</code></pre><h3>Do not</h3><ul><li>Install Chromium or Python on the Ecom Control Center web servers.</li><li>Pass a user-typed URL or blob path straight to storage — only names from the listing.</li><li>Put the Azure DevOps credential in <code>web.config</code> — use Key Vault or managed identity.</li></ul></section><section class="tab-pane" id="risks"><h2>Before the first real run</h2><div class="tbl-wrap"><table class=""><thead><tr><th>Item</th><th>Owner</th><th>Status</th></tr></thead><tbody><tr data-status=""><td>Production and LLE Osano customer id + config id</td><td>Osano administrator</td><td class="f-bad">Open</td></tr><tr data-status=""><td>Exact path of apply step one (guessed /payday-lending/payday-loans/step/one)</td><td>Ecom team</td><td class="f-bad">Open</td></tr><tr data-status=""><td>List of LLE hostnames to cover</td><td>DevOps</td><td class="f-bad">Open</td></tr><tr data-status=""><td>US visitors get opt-in or opt-out? (first run reports it as check OSN-06)</td><td>Osano administrator</td><td class="f-warn">Open</td></tr><tr data-status=""><td>Banner button selectors match the live banner (first run shows NOT JUDGED if not)</td><td>DevOps</td><td class="f-warn">Open</td></tr><tr data-status=""><td>Shape of the Osano export from the MCP / REST call (adapt <code>import-config</code> if needed)</td><td>Osano administrator</td><td class="f-warn">Open</td></tr><tr data-status=""><td>Analytics team informed about harness traffic</td><td>Marketing</td><td class="f-warn">Open</td></tr><tr data-status=""><td>Akamai allow-list for the harness user agent, if challenged</td><td>DevOps</td><td class="f-muted">If needed</td></tr><tr data-status=""><td>Hash-locked dependencies (<code>pip-compile --generate-hashes</code>) before production use</td><td>DevOps</td><td class="f-warn">Open</td></tr></tbody></table></div><h2>Known limits</h2><ul><li>Results reflect the agent's location: Osano chooses the consent model by visitor region. Testing EU behaviour needs an agent or proxy in the EU.</li><li>Accept-all runs send real hits to analytics and ad platforms (small volume).</li><li>Timings are single lab samples — trust trends, not single numbers.</li><li>The vendor catalog (<code>config/vendor_catalog.yaml</code>) decides what each third party really is; keep it in step with Osano.</li></ul></section><section class="tab-pane" id="history"><div class="tbl-wrap"><table class=""><thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead><tbody><tr data-status=""><td>1.1</td><td>2026-10-07</td><td>After code review: risk is fail-closed (un-judged checks never read as safe), pipeline parameters can no longer inject code, nightly baseline found by build tag, storage step only when enabled, stricter profile and Osano-export validation, exit 2 for bad input files.</td></tr><tr data-status=""><td>1.0</td><td>2026-10-07</td><td>First handoff: local setup, Azure DevOps pipeline with pause and gate, nightly drift check, Ecom Control Center integration design.</td></tr></tbody></table></div></section></main>
+<script>
+(function(){
+  var root=document.documentElement, KEY='html-artifact-theme';
+  function setTheme(t){root.setAttribute('data-theme',t);try{localStorage.setItem(KEY,t)}catch(e){}
+    var b=document.getElementById('themeBtn'); if(b) b.textContent=t==='dark'?'Light mode':'Dark mode';}
+  var saved='dark'; try{saved=localStorage.getItem(KEY)||'dark'}catch(e){}
+  setTheme(saved);
+  document.getElementById('themeBtn').addEventListener('click',function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')});
+  var btns=document.querySelectorAll('.tab-btn'), panes=document.querySelectorAll('.tab-pane');
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    btns.forEach(function(x){x.classList.toggle('active',x===b)});
+    panes.forEach(function(p){p.classList.toggle('active',p.id===b.dataset.tab)});
+    stop();});});
+  // status filter on checks tables
+  document.querySelectorAll('select[data-filter]').forEach(function(sel){sel.addEventListener('change',function(){
+    var t=document.getElementById(sel.dataset.filter); if(!t) return;
+    t.querySelectorAll('tbody tr').forEach(function(tr){tr.style.display=(!sel.value||tr.dataset.status===sel.value)?'':'none'});});});
+  // ---- Listen (Web Speech API, offline) ----
+  var synth=window.speechSynthesis, vSel=document.getElementById('voiceSel'), rSel=document.getElementById('rateSel');
+  var VK='html-artifact-voice', RK='html-artifact-rate', queue=[], speaking=false;
+  if(!synth){document.getElementById('listen').style.display='none';return;}
+  try{var r=localStorage.getItem(RK); if(r) rSel.value=r;}catch(e){}
+  function loadVoices(){var vs=synth.getVoices(), want=''; try{want=localStorage.getItem(VK)||''}catch(e){}
+    vSel.innerHTML=''; vs.forEach(function(v){var o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.lang+')';if(v.name===want)o.selected=true;vSel.appendChild(o);});}
+  loadVoices(); if(synth.onvoiceschanged!==undefined) synth.onvoiceschanged=loadVoices;
+  vSel.addEventListener('change',function(){try{localStorage.setItem(VK,vSel.value)}catch(e){}});
+  rSel.addEventListener('change',function(){try{localStorage.setItem(RK,rSel.value)}catch(e){}});
+  function textOf(el){
+    var out=[];
+    (function walk(n){
+      if(n.nodeType===3){var t=n.textContent.replace(/\s+/g,' ').trim(); if(t) out.push(t); return;}
+      if(n.nodeType!==1) return;
+      var tg=n.tagName; if(/^(SVG|SCRIPT|STYLE|BUTTON|SELECT|IMG|NOSCRIPT)$/i.test(tg)||n.classList.contains('no-read')) return;
+      if(tg==='TABLE'){var hs=[].map.call(n.querySelectorAll('thead th'),function(h){return h.textContent.trim()});
+        n.querySelectorAll('tbody tr').forEach(function(tr){ if(tr.style.display==='none') return;
+          var cells=[].map.call(tr.children,function(td,i){var t=td.textContent.replace(/\s+/g,' ').trim(); return t?(hs[i]?hs[i]+': ':'')+t:''}).filter(Boolean);
+          if(cells.length) out.push(cells.join(', ')+'.');}); return;}
+      if(tg==='DETAILS' && !n.open){var s=n.querySelector('summary'); if(s) out.push(s.textContent.trim()+'.'); return;}
+      [].forEach.call(n.childNodes,walk);
+      if(/^(H1|H2|H3|P|LI|DIV)$/.test(tg)) out.push('. ');
+    })(el);
+    return out.join(' ').replace(/(\.\s*){2,}/g,'. ');
+  }
+  function chunks(t){var parts=t.match(/[^.!?]+[.!?]*/g)||[t], res=[], cur='';
+    parts.forEach(function(p){ if((cur+p).length>220){ if(cur) res.push(cur); cur=p;} else cur+=p; }); if(cur.trim()) res.push(cur); return res;}
+  function next(){ if(!queue.length){speaking=false;return;}
+    var u=new SpeechSynthesisUtterance(queue.shift()); var v=synth.getVoices().filter(function(x){return x.name===vSel.value})[0];
+    if(v) u.voice=v; u.rate=parseFloat(rSel.value)||1; u.onend=next; u.onerror=next; synth.speak(u);}
+  function play(){ if(synth.paused){synth.resume();return;} if(speaking) return;
+    var pane=document.querySelector('.tab-pane.active'); queue=chunks(textOf(pane)); speaking=true; next();}
+  function stop(){queue=[];speaking=false;if(synth) synth.cancel();}
+  document.getElementById('playBtn').addEventListener('click',play);
+  document.getElementById('pauseBtn').addEventListener('click',function(){ if(synth.paused) synth.resume(); else synth.pause();});
+  document.getElementById('stopBtn').addEventListener('click',stop);
+})();
+</script>
+</body></html>

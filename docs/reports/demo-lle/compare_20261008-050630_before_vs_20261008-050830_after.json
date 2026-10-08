@@ -1,0 +1,73 @@
+{
+ "display_name": "DEMO Cash Express \u2014 Lower environments (sample)",
+ "profile": "demo-lle",
+ "before": "20261008-050630_before",
+ "after": "20261008-050830_after",
+ "before_finished_utc": "2026-10-08T05:06:30Z",
+ "after_finished_utc": "2026-10-08T05:08:30Z",
+ "compared_utc": "2026-10-08T05:08:32Z",
+ "verdict": "MIXED",
+ "risk": "HIGH",
+ "risk_reason": "5 high-risk problem(s) open, 1 of them introduced by the change; 3 medium-risk problem(s) or high-risk warning(s) open",
+ "counts": {
+  "fixed": 17,
+  "new": 1,
+  "still": 7,
+  "stale": 0,
+  "gone": 0,
+  "judged": 0,
+  "unjudged": 0
+ },
+ "kpis": {
+  "compliance_score": {
+   "before": 66.1,
+   "after": 85.5,
+   "direction": "better"
+  },
+  "issues_high": {
+   "before": 17,
+   "after": 5,
+   "direction": "better"
+  },
+  "issues_total": {
+   "before": 24,
+   "after": 8,
+   "direction": "better"
+  },
+  "pre_consent_violations": {
+   "before": 17,
+   "after": 3,
+   "direction": "better"
+  },
+  "reject_all_violations": {
+   "before": 17,
+   "after": 3,
+   "direction": "better"
+  },
+  "gpc_violations": {
+   "before": 17,
+   "after": 3,
+   "direction": "better"
+  },
+  "broken_journeys": {
+   "before": 0,
+   "after": 1,
+   "direction": "worse"
+  },
+  "unclassified_items": {
+   "before": 3,
+   "after": 3,
+   "direction": "same"
+  },
+  "osano_unclassified": {
+   "before": 11,
+   "after": 3,
+   "direction": "better"
+  },
+  "avg_load_ms": {
+   "before": 126,
+   "after": 108,
+   "direction": "better"
+  }
+ }
+}

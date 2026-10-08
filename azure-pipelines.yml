@@ -1,0 +1,180 @@
+# AI-GENERATED: create
+# AI Technology: Claude Code (Opus 5.5, claude-opus-5-5)
+# Reviewer: Sarada Mamidi, DevOps Manager - review required before merge
+#
+# Osano before/after check.
+#   Manual run : Before -> (pause while the Osano change is made and published) -> After + Compare
+#   Nightly    : one run of the DEFAULT profile (parameter 'profile'), compared with its previous nightly run.
+#                Schedules cannot pass parameters: for a nightly of the other property, copy this file to
+#                azure-pipelines-prod.yml with the 'profile' default set to ace-prod and create a second
+#                pipeline from that copy.
+# Needs a SELF-HOSTED Windows agent inside the network: LLE hosts are internal, and Akamai
+# may challenge Microsoft-hosted datacenter IPs. See docs/production-handoff.html.
+
+trigger: none
+pr: none
+
+schedules:
+  - cron: "0 9 * * *"            # 09:00 UTC daily
+    displayName: Nightly drift check
+    branches: { include: [main] }
+    always: true
+
+parameters:
+  - name: profile
+    displayName: Osano property (profile)
+    type: string
+    default: ace-lle
+    values: [ace-prod, ace-lle]
+  - name: mode
+    displayName: What to run
+    type: string
+    default: before-after
+    values: [before-after, single]
+  - name: osanoConfigBefore
+    displayName: Osano export BEFORE the change (repo path, optional)
+    type: string
+    default: ' '
+  - name: osanoConfigAfter
+    displayName: Osano export AFTER the change (repo path, optional)
+    type: string
+    default: ' '
+  - name: failOn
+    displayName: Fail the pipeline when
+    type: string
+    default: new-high
+    values: [never, new-high, high-risk]
+  - name: agentPool
+    displayName: Self-hosted agent pool
+    type: string
+    default: Osano-Harness-Win
+
+variables:
+  PYTHONUNBUFFERED: '1'
+  PYTHONIOENCODING: utf-8
+  PLAYWRIGHT_BROWSERS_PATH: $(Agent.ToolsDirectory)\ms-playwright
+  # Set to 'true' and fill the two below to copy reports to Azure Storage for Ecom Control Center.
+  publishToStorage: 'false'
+  storageServiceConnection: ''
+  storageAccount: ''
+  isNightly: ${{ eq(variables['Build.Reason'], 'Schedule') }}
+
+stages:
+  # ---------------------------------------------------------------- BEFORE (or single / nightly)
+  - stage: Before
+    displayName: ${{ iif(eq(parameters.mode, 'single'), 'Run', 'Before the change') }}
+    pool:
+      name: ${{ parameters.agentPool }}
+    jobs:
+      - job: probe
+        timeoutInMinutes: 60
+        steps:
+          - template: pipelines/setup-steps.yml
+          # Free-text parameters reach the script ONLY through environment variables and are pattern-checked:
+          # pasting them into the script text would let anyone who can queue a run execute code on the agent.
+          - powershell: |
+              $label = if ($env:IS_NIGHTLY -eq 'True') { 'nightly' } elseif ($env:RUN_MODE -eq 'single') { 'single' } else { 'before' }
+              $args2 = @('-m','osano_harness','run','--profile',$env:PROFILE_NAME,'--label',$label,'--notes',"Pipeline $env:BUILD_BUILDNUMBER")
+              $cfg = "$env:OSANO_CFG".Trim()
+              if ($cfg) {
+                if ($cfg -notmatch '^config/osano_exports/[A-Za-z0-9._-]+\.json$') { throw "osanoConfigBefore must look like config/osano_exports/<name>.json" }
+                $args2 += @('--osano-config', $cfg)
+              }
+              & .\.venv\Scripts\python.exe @args2
+              if ($LASTEXITCODE -ne 0) { throw "run failed ($LASTEXITCODE)" }
+              if ($env:IS_NIGHTLY -eq 'True') { Write-Host "##vso[build.addbuildtag]osano-nightly-$env:PROFILE_NAME" }
+            displayName: Probe the sites
+            env:
+              PROFILE_NAME: ${{ parameters.profile }}
+              RUN_MODE: ${{ parameters.mode }}
+              OSANO_CFG: ${{ parameters.osanoConfigBefore }}
+              IS_NIGHTLY: $(isNightly)
+          # Nightly: compare with the previous nightly run of THIS profile (found by build tag).
+          - ${{ if eq(variables['Build.Reason'], 'Schedule') }}:
+              # Self-hosted workspaces keep old files: clear the folder so a failed download can never
+              # leave last week's baseline to be compared against silently.
+              - powershell: Remove-Item -LiteralPath "$(Pipeline.Workspace)\previous" -Recurse -Force -ErrorAction SilentlyContinue
+                displayName: Clear previous baseline folder
+              - task: DownloadPipelineArtifact@2
+                displayName: Fetch previous nightly run
+                continueOnError: true
+                inputs:
+                  source: specific
+                  project: $(System.TeamProjectId)
+                  pipeline: $(System.DefinitionId)
+                  runVersion: latestFromBranch
+                  branchName: refs/heads/main
+                  tags: osano-nightly-${{ parameters.profile }}
+                  # A nightly that found problems ends failed or partially succeeded — it is still a baseline.
+                  allowPartiallySucceededBuilds: true
+                  allowFailedBuilds: true
+                  artifact: osano-runs-${{ parameters.profile }}
+                  path: $(Pipeline.Workspace)\previous
+              - powershell: |
+                  $prev = Get-ChildItem "$(Pipeline.Workspace)\previous" -Filter *_nightly.json -Recurse -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -Last 1
+                  $cur  = Get-ChildItem "runs\${{ parameters.profile }}" -Filter *_nightly.json | Sort-Object Name | Select-Object -Last 1
+                  if (-not $prev) { Write-Host "##vso[task.logissue type=warning]No previous nightly run found - this run is the baseline. If this repeats every night, the drift check is not working."; exit 0 }
+                  & .\.venv\Scripts\python.exe -m osano_harness compare --profile ${{ parameters.profile }} --before $prev.FullName --after $cur.FullName --fail-on ${{ parameters.failOn }}
+                  if ($LASTEXITCODE -eq 3) { Write-Host "##vso[task.logissue type=error]Osano drift: new high-risk problem since last night"; exit 1 }
+                  if ($LASTEXITCODE -ne 0) { throw "compare failed ($LASTEXITCODE)" }
+                displayName: Compare with last night
+          - template: pipelines/publish-steps.yml
+            parameters: { profile: '${{ parameters.profile }}' }
+
+  # ---------------------------------------------------------------- PAUSE while the change is made
+  - ${{ if eq(parameters.mode, 'before-after') }}:
+      - stage: MakeChange
+        displayName: Make the Osano change
+        dependsOn: Before
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'Schedule'))
+        jobs:
+          - job: wait
+            pool: server
+            timeoutInMinutes: 4320          # 3 days
+            steps:
+              - task: ManualValidation@1
+                timeoutInMinutes: 4320
+                inputs:
+                  instructions: >-
+                    The BEFORE report is in this run's artifacts. Make and PUBLISH the Osano change
+                    for ${{ parameters.profile }}, wait 5 minutes for Osano's CDN, then Resume to run AFTER.
+                  onTimeout: reject
+
+      # -------------------------------------------------------------- AFTER + COMPARE
+      - stage: After
+        displayName: After the change + compare
+        dependsOn: MakeChange
+        pool:
+          name: ${{ parameters.agentPool }}
+        jobs:
+          - job: probe
+            timeoutInMinutes: 60
+            steps:
+              - template: pipelines/setup-steps.yml
+              - task: DownloadPipelineArtifact@2
+                displayName: Fetch the BEFORE run
+                inputs:
+                  source: current
+                  artifact: osano-runs-${{ parameters.profile }}
+                  path: $(Pipeline.Workspace)\before
+              - powershell: |
+                  $args2 = @('-m','osano_harness','run','--profile',$env:PROFILE_NAME,'--label','after','--notes',"Pipeline $env:BUILD_BUILDNUMBER")
+                  $cfg = "$env:OSANO_CFG".Trim()
+                  if ($cfg) {
+                    if ($cfg -notmatch '^config/osano_exports/[A-Za-z0-9._-]+\.json$') { throw "osanoConfigAfter must look like config/osano_exports/<name>.json" }
+                    $args2 += @('--osano-config', $cfg)
+                  }
+                  & .\.venv\Scripts\python.exe @args2
+                  if ($LASTEXITCODE -ne 0) { throw "run failed ($LASTEXITCODE)" }
+                  $before = Get-ChildItem "$(Pipeline.Workspace)\before" -Filter *_before.json -Recurse | Sort-Object Name | Select-Object -Last 1
+                  $after  = Get-ChildItem "runs\${{ parameters.profile }}" -Filter *_after.json | Sort-Object Name | Select-Object -Last 1
+                  & .\.venv\Scripts\python.exe -m osano_harness compare --profile ${{ parameters.profile }} --before $before.FullName --after $after.FullName --fail-on ${{ parameters.failOn }}
+                  $rc = $LASTEXITCODE
+                  if ($rc -eq 3) { Write-Host "##vso[task.logissue type=error]Osano change introduced a high-risk problem - see the compare report"; exit 1 }
+                  if ($rc -ne 0) { throw "compare failed ($rc)" }
+                displayName: Probe again and compare
+                env:
+                  PROFILE_NAME: ${{ parameters.profile }}
+                  OSANO_CFG: ${{ parameters.osanoConfigAfter }}
+              - template: pipelines/publish-steps.yml
+                parameters: { profile: '${{ parameters.profile }}', suffix: '-after' }

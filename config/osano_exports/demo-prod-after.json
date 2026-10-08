@@ -1,0 +1,31 @@
+{
+  "property": "demo-production",
+  "mode": "strict",
+  "captured_at": "2026-10-07T15:00:00Z",
+  "source": "SAMPLE export (fabricated for the demo) - after",
+  "items": [
+    {"type": "script", "section": "rules", "match": "cmp.osano.com", "category": "ESSENTIAL"},
+    {"type": "script", "section": "rules", "match": "googletagmanager.com", "category": "ESSENTIAL"},
+    {"type": "script", "section": "rules", "match": "bat.bing.com", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "clarity.ms", "category": "ANALYTICS"},
+    {"type": "script", "section": "rules", "match": "maps.googleapis.com", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "doubleclick.net", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "google-analytics.com", "category": "ANALYTICS"},
+    {"type": "script", "section": "rules", "match": "connect.facebook.net", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "facebook.com", "category": "MARKETING"},
+    {"type": "script", "section": "rules", "match": "static.hotjar.com", "category": "ANALYTICS"},
+    {"type": "script", "section": "rules", "match": "hotjar.com", "category": "ANALYTICS"},
+    {"type": "script", "section": "ignored", "match": "localhost-debug.js", "category": null},
+    {"type": "cookie", "section": "rules", "match": "osano_consentmanager*", "category": "ESSENTIAL"},
+    {"type": "cookie", "section": "rules", "match": "ASP.NET_SessionId", "category": "ESSENTIAL"},
+    {"type": "cookie", "section": "rules", "match": "__RequestVerificationToken*", "category": "ESSENTIAL"},
+    {"type": "cookie", "section": "rules", "match": "_ga", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "rules", "match": "_ga_*", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "rules", "match": "_gcl_au", "category": "MARKETING"},
+    {"type": "cookie", "section": "rules", "match": "_uetsid", "category": "MARKETING"},
+    {"type": "cookie", "section": "rules", "match": "_clck", "category": "ANALYTICS"},
+    {"type": "cookie", "section": "rules", "match": "_fbp", "category": "MARKETING"},
+    {"type": "cookie", "section": "rules", "match": "_hjSessionUser_*", "category": "ANALYTICS"},
+    {"type": "iframe", "section": "rules", "match": "youtube.com", "category": "MARKETING"}
+  ]
+}

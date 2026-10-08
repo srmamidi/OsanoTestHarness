@@ -1,0 +1,48 @@
+# ACE Cash Express — PRODUCTION Osano property.
+# One profile = one Osano property. Fill every REPLACE-ME / CONFIRM before the first run;
+# the harness refuses to run with placeholders (a wrong expected config id would hide check OSN-03).
+
+name: ace-prod
+display_name: ACE Cash Express — Production
+environment: production
+osano_property: production
+
+# Your own domains: requests/cookies here are first-party.
+first_party_domains: [acecashexpress.com]
+
+# CONFIRM: what Osano reports for a US visitor (Osano.cm.consentModel). If wrong, check OSN-06
+# fails on the first run and tells you the real value.
+consent_model_expected: opt-in
+google_consent_mode: advanced          # advanced | basic | none
+banner_expected_on_first_visit: true
+expected_categories_when_accepted: [ANALYTICS, MARKETING]
+
+osano:
+  # From the production osano.js URL: https://cmp.osano.com/<customer>/<config>/osano.js
+  expected_customer_id: REPLACE-ME
+  expected_config_id: REPLACE-ME
+  expected_mode: strict                # listener | permissive | strict
+
+pages:
+  - id: home
+    url: https://www.acecashexpress.com/
+    journey_checks:
+      - id: has-apply-link
+        description: An apply / get started link is visible
+        selector: "a[href*='apply']"
+  - id: apply-step-one
+    # CONFIRM the exact path of step one.
+    url: https://apply.acecashexpress.com/payday-lending/payday-loans/step/one
+    journey_checks:
+      - id: form-renders
+        description: Step one application form is visible
+        selector: "form"
+      # Example of a function check; uncomment if the page uses Google Places autocomplete.
+      # - id: address-autocomplete
+      #   description: Address autocomplete (Google Maps) loaded
+      #   js: "window.google && window.google.maps"
+
+crawl:
+  # Akamai bot protection may challenge a headless browser; set false to run a visible browser.
+  headless: true
+  polite_delay_ms: 2000

@@ -1,0 +1,127 @@
+# What each known third party IS, independent of how Osano is configured.
+# The harness uses this as the "truth" to judge whether Osano let the right things through,
+# and to spot Osano rules that disagree with it (check CFG-01).
+#
+# category: ESSENTIAL | ANALYTICS | MARKETING | PERSONALIZATION | OPT-OUT   (Osano's names)
+# hosts:    a request/script/iframe matches when its host equals or ends with ".<host>"
+# cookies:  shell-style patterns (fnmatch), matched against the cookie name
+# storage:  shell-style patterns for localStorage / sessionStorage keys
+#
+# Anything seen that matches nothing here, and is not first-party, is UNCLASSIFIED.
+# UNCLASSIFIED is treated as non-essential (fail closed): Osano Strict mode blocks it too.
+# Add your own vendors here as you classify them — keep it in sync with Osano.
+
+vendors:
+  - id: osano
+    name: Osano consent manager
+    category: ESSENTIAL
+    hosts: [osano.com, osano.io]
+    cookies: ["osano_consentmanager*"]
+    storage: ["osano*"]
+
+  - id: aspnet
+    name: ASP.NET / IIS session and anti-forgery (MVC apps)
+    category: ESSENTIAL
+    first_party: true
+    cookies: ["ASP.NET_SessionId", "__RequestVerificationToken*", ".AspNet*", "ARRAffinity*", "ARRAffinitySameSite*", "TiPMix", "x-ms-routing-name"]
+
+  - id: akamai
+    name: Akamai edge / bot manager
+    category: ESSENTIAL
+    hosts: [akamaihd.net, akamaized.net, akstat.io, go-mpulse.net]
+    cookies: ["ak_bmsc", "bm_*", "_abck", "bm_sz", "bm_sv", "bm_mi"]
+
+  - id: google-tag-manager
+    name: Google Tag Manager / gtag.js loader (the tags inside it must be gated)
+    category: ESSENTIAL
+    hosts: [googletagmanager.com]
+
+  - id: google-maps
+    name: Google Maps / Places (address autocomplete)
+    category: ESSENTIAL
+    hosts: [maps.googleapis.com, maps.gstatic.com]
+
+  - id: recaptcha
+    name: Google reCAPTCHA
+    category: ESSENTIAL
+    hosts: [recaptcha.net]
+    url_contains: ["google.com/recaptcha", "gstatic.com/recaptcha"]
+
+  - id: google-analytics
+    name: Google Analytics 4
+    category: ANALYTICS
+    hosts: [google-analytics.com, analytics.google.com]
+    cookies: ["_ga", "_ga_*", "_gid", "_gat*"]
+
+  - id: microsoft-clarity
+    name: Microsoft Clarity
+    category: ANALYTICS
+    hosts: [clarity.ms]
+    cookies: ["_clck", "_clsk", "CLID", "MUID"]
+
+  - id: hotjar
+    name: Hotjar
+    category: ANALYTICS
+    hosts: [hotjar.com, hotjar.io]
+    cookies: ["_hj*"]
+    storage: ["_hj*"]
+
+  - id: adobe-analytics
+    name: Adobe Analytics
+    category: ANALYTICS
+    hosts: [omtrdc.net, 2o7.net, demdex.net]
+    cookies: ["s_cc", "s_sq", "s_vi", "s_fid", "AMCV_*", "AMCVS_*"]
+
+  - id: google-ads
+    name: Google Ads / DoubleClick
+    category: MARKETING
+    hosts: [doubleclick.net, googleadservices.com, googlesyndication.com]
+    url_contains: ["google.com/pagead", "google.com/ads"]
+    cookies: ["_gcl_*", "IDE", "test_cookie", "DSID"]
+
+  - id: meta-pixel
+    name: Meta (Facebook) Pixel
+    category: MARKETING
+    hosts: [facebook.net, facebook.com]
+    cookies: ["_fbp", "_fbc", "fr"]
+
+  - id: microsoft-ads
+    name: Microsoft Advertising (Bing UET)
+    category: MARKETING
+    hosts: [bat.bing.com, bing.com]
+    cookies: ["_uetsid", "_uetvid", "_uetmsclkid"]
+
+  - id: tiktok
+    name: TikTok Pixel
+    category: MARKETING
+    hosts: [analytics.tiktok.com, tiktok.com]
+    cookies: ["_ttp", "_tt_enable_cookie"]
+
+  - id: linkedin
+    name: LinkedIn Insight
+    category: MARKETING
+    hosts: [licdn.com, linkedin.com, ads.linkedin.com]
+    cookies: ["li_*", "lidc", "bcookie", "UserMatchHistory", "AnalyticsSyncHistory"]
+
+  - id: youtube
+    name: YouTube embeds
+    category: MARKETING
+    hosts: [youtube.com, youtube-nocookie.com, ytimg.com, googlevideo.com]
+    cookies: ["VISITOR_INFO1_LIVE", "YSC"]
+
+  - id: trade-desk
+    name: The Trade Desk
+    category: MARKETING
+    hosts: [adsrvr.org]
+
+  - id: intercom
+    name: Intercom chat
+    category: PERSONALIZATION
+    hosts: [intercom.io, intercomcdn.com]
+    cookies: ["intercom-*"]
+
+  - id: optimizely
+    name: Optimizely experiments
+    category: PERSONALIZATION
+    hosts: [optimizely.com]
+    cookies: ["optimizely*"]
